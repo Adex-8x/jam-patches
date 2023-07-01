@@ -1,0 +1,113 @@
+.org ExecuteMoveBeforeLoop
+.area 0x4
+	b ProteanHook
+.endarea
+
+.org MagicianDamageCheck
+.area 0x4
+	b DamageHook
+EndDamageHook:
+.endarea
+
+.org AttackStatDownStart
+.area 0x4
+	b AttackStatDownHook
+NoContraryAttackStatDown:
+.endarea
+
+.org DefenseStatDownStart
+.area 0x4
+	b DefenseStatDownHook
+NoContraryDefenseStatDown:
+.endarea
+
+.org AttackStatUpStart
+.area 0x4
+	b AttackStatUpHook
+NoContraryAttackStatUp:
+.endarea
+
+.org DefenseStatUpStart
+.area 0x4
+	b DefenseStatUpHook
+NoContraryDefenseStatUp:
+.endarea
+
+.org FocusStatDownStart
+.area 0x4
+	b FocusStatDownHook
+NoContraryFocusStatDown:
+.endarea
+
+.org SpeedStatDownStart
+.area 0x4
+	b SpeedStatDownHook
+NoContrarySpeedStatDown:
+.endarea
+
+.org FocusStatUpStart
+.area 0x4
+	b FocusStatUpHook
+NoContraryFocusStatUp:
+.endarea
+
+.org SpeedStatUpStart
+.area 0x4
+	b SpeedStatUpHook
+NoContrarySpeedStatUp:
+.endarea
+
+.org AttackStatMinMaxStart
+.area 0x4
+	bl StatMinMaxHook
+.endarea
+
+.org DefenseStatMinMaxStart
+.area 0x4
+	bl StatMinMaxHook
+.endarea
+
+.org AttackStatDownSuccess
+.area 0x4
+	b DefiantAttackHook
+.endarea
+
+.org DefenseStatDownSuccess
+.area 0x4
+	b DefiantDefenseHook
+.endarea
+
+.org FocusStatDownSuccess1
+.area 0x4
+	b DefiantFocusHook
+.endarea
+
+.org FocusStatDownSuccess2
+.area 0x4
+	b DefiantFocusHook
+.endarea
+
+.org SpeedStatDownSuccess
+.area 0x4
+	bl DefiantSpeedHook
+.endarea
+
+.org AttackStatMinMaxSuccess
+.area 0x4
+	b DefiantAttackMinMaxHook
+.endarea
+
+.org DefenseStatMinMaxSuccess
+.area 0x4
+	b DefiantDefenseMinMaxHook
+.endarea
+
+.org 0x022ec790
+.area 0x4
+	mov r0,#0 ; No more Minus!
+.endarea
+
+.org 0x022ec7b0
+.area 0x4
+	mov r0,#0 ; No more Plus!
+.endarea

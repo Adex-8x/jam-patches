@@ -1,0 +1,472 @@
+.org 0x23A7080+0x30F70
+.area 0x700 ; 0xA8+
+ProteanHook:
+	push r0-r12
+	; r8 = Move Pointer
+	; r9 = Attacker Entity Struct
+	mov r0,r9
+	mov r1,#0x74
+	bl IsAbilityActive
+	cmp r0,#0
+	beq protean_ret
+	mov r0,r9
+	mov r1,r8
+	bl GetMoveType
+	cmp r0,#0
+	beq protean_ret
+	; There's also a Weather Ball check, but eh who cares about that
+	ldr r1,[r9,#+0xB4]
+	ldrb r2,[r1,#0x5E]
+	ldrb r3,[r1,#0x5F]
+	cmp r0,r2
+	cmpeq r3,#0
+	beq protean_ret ; Already monotype of the move type!
+	strb r0,[r1,#0x5E]
+	mov r2,#0
+	strb r2,[r1,#0x5F]
+	mov r2,#1
+	strb r2,[r1,#0xFF]
+	mov r4,r0
+	mov r0,#0
+	mov r1,r9
+	mov r2,r0
+	bl SubstitutePlaceholderStringTags
+	mov r0,#0
+	mov r1,r4
+	bl UNK_NA_234B084
+	mov r0,r9
+	mov r1,r0
+	mov r2,#296
+	bl LogMessageByIdWithPopupCheckUserTarget
+	mov r0,r9
+	bl UNK_NA_22E647C
+protean_ret:
+	pop r0-r12
+	b StartExecuteMoveLoop
+
+
+; Contrary, send help
+GetContraryFlag:
+	ldr r0,=contrary_flag
+	ldrb r1,[r0]
+	cmp r1,#1
+	movne r1,#1
+	strneb r1,[r0]
+	bx r14
+ResetContraryFlag:
+	ldr r0,=contrary_flag
+	mov r1,#0
+	strb r1,[r0]
+	bx r14
+AttackStatDownHook:
+	push r0-r3
+	mov r2,#0x3F
+	mov r3,#1
+	bl DefenderAbilityIsActive
+	cmp r0,#0
+	blne GetContraryFlag
+	pop r0-r3
+	moveq r7,r1
+	beq NoContraryAttackStatDown
+	bl AttackStatUp
+	bl ResetContraryFlag
+	pop r4-r8,r14
+	add r13,r13,#0x10
+	bx r14
+DefenseStatDownHook:
+	push r0-r3
+	mov r2,#0x3F
+	mov r3,#1
+	bl DefenderAbilityIsActive
+	cmp r0,#0
+	blne GetContraryFlag
+	pop r0-r3
+	moveq r7,r1
+	beq NoContraryDefenseStatDown
+	bl DefenseStatUp
+	bl ResetContraryFlag
+	pop r4-r8,r14
+	add r13,r13,#0x10
+	bx r14
+AttackStatUpHook:
+	push r0-r3
+	mov r2,#0x3F
+	mov r3,#1
+	bl DefenderAbilityIsActive
+	cmp r0,#0
+	blne GetContraryFlag
+	pop r0-r3
+	moveq r8,r1
+	beq NoContraryAttackStatUp
+	bl AttackStatDown
+	bl ResetContraryFlag
+	pop r3-r9,r14
+	add r13,r13,#0x10
+	bx r14
+DefenseStatUpHook:
+	push r0-r3
+	mov r2,#0x3F
+	mov r3,#1
+	bl DefenderAbilityIsActive
+	cmp r0,#0
+	blne GetContraryFlag
+	pop r0-r3
+	moveq r8,r1
+	beq NoContraryDefenseStatUp
+	bl DefenseStatDown
+	bl ResetContraryFlag
+	pop r3-r9,r14
+	add r13,r13,#0x10
+	bx r14
+SpeedStatDownHook:
+	push r0-r3
+	mov r2,#0x3F
+	mov r3,#1
+	bl DefenderAbilityIsActive
+	cmp r0,#0
+	blne GetContraryFlag
+	pop r0-r3
+	moveq r9,r1
+	beq NoContrarySpeedStatDown
+	sub r13,r13,#4
+	str r3,[r13]
+	mov r3,#0
+	bl SpeedStatUp
+	add r13,r13,#4
+	bl ResetContraryFlag
+	pop r3-r11,r15
+FocusStatDownHook:
+	push r0-r3
+	mov r2,#0x3F
+	mov r3,#1
+	bl DefenderAbilityIsActive
+	cmp r0,#0
+	blne GetContraryFlag
+	pop r0-r3
+	moveq r6,r1
+	beq NoContraryFocusStatDown
+	bl FocusStatUp
+	bl ResetContraryFlag
+	pop r4-r8,r14
+	add r13,r13,#0x10
+	bx r14
+SpeedStatUpHook:
+	push r0-r3
+	mov r2,#0x3F
+	mov r3,#1
+	bl DefenderAbilityIsActive
+	cmp r0,#0
+	blne GetContraryFlag
+	pop r0-r3
+	moveq r8,r1
+	beq NoContrarySpeedStatUp
+	mov r3,#1
+	bl SpeedStatDown
+	bl ResetContraryFlag
+	pop r3-r9,r15
+FocusStatUpHook:
+	push r0-r3
+	mov r2,#0x3F
+	mov r3,#1
+	bl DefenderAbilityIsActive
+	cmp r0,#0
+	blne GetContraryFlag
+	pop r0-r3
+	moveq r6,r1
+	beq NoContraryFocusStatUp
+	mov r3,#0
+	bl FocusStatDown
+	bl ResetContraryFlag
+	pop r4-r8,r14
+	add r13,r13,#0x10
+	bx r14
+StatMinMaxHook:
+	push r14,r0-r3
+	mov r2,#0x3F
+	mov r3,#1
+	bl DefenderAbilityIsActive
+	cmp r0,#0
+	pop r0-r3
+	moveq r7,r3
+	popeq r15
+	mov r7,#0x100
+	cmp r3,r7
+	subgt r3,r3,r7
+	subgt r7,r7,r3
+	sublt r3,r7,r3
+	addlt r7,r7,r3
+	mov r3,r7
+	pop r15
+
+; Defiant aaaaiaiiiiauuguuugughguhgugghghghh I need more hooks
+
+DefiantAttackHook:
+	cmp r8,r7
+	beq AttackStatDownEnd
+	mov r0,r8
+	mov r1,r7
+	mov r2,#0x75
+	mov r3,#1
+	bl DefenderAbilityIsActive
+	cmp r0,#0
+	beq AttackStatDownEnd
+	mov r0,r8
+	mov r1,r7
+	mov r2,#0
+	mov r3,#2
+	bl AttackStatUp
+	b AttackStatDownEnd
+DefiantDefenseHook:
+	cmp r8,r7
+	beq DefenseStatDownEnd
+	mov r0,r8
+	mov r1,r7
+	mov r2,#0x75
+	mov r3,#1
+	bl DefenderAbilityIsActive
+	cmp r0,#0
+	beq DefenseStatDownEnd
+	mov r0,r8
+	mov r1,r7
+	mov r2,#0
+	mov r3,#2
+	bl AttackStatUp
+	b AttackStatDownEnd
+DefiantFocusHook:
+	cmp r7,r6
+	beq FocusStatDownEnd
+	mov r0,r7
+	mov r1,r6
+	mov r2,#0x75
+	mov r3,#1
+	bl DefenderAbilityIsActive
+	cmp r0,#0
+	beq FocusStatDownEnd
+	mov r0,r7
+	mov r1,r6
+	mov r2,#0
+	mov r3,#2
+	bl AttackStatUp
+	b FocusStatDownEnd
+DefiantSpeedHook:
+	push r14
+	bl #0x02314e1c
+	cmp r10,r9
+	popeq r15
+	mov r0,r10
+	mov r1,r9
+	mov r2,#0x75
+	mov r3,#1
+	bl DefenderAbilityIsActive
+	cmp r0,#0
+	popeq r15
+	mov r0,r10
+	mov r1,r9
+	mov r2,#0
+	mov r3,#2
+	bl AttackStatUp
+	pop r15
+DefiantAttackMinMaxHook:
+	cmp r8,r9
+	beq AttackStatMinMaxEnd
+	mov r0,r9
+	mov r1,r8
+	mov r2,#0x75
+	mov r3,#1
+	bl DefenderAbilityIsActive
+	cmp r0,#0
+	beq AttackStatMinMaxEnd
+	mov r0,r9
+	mov r1,r8
+	mov r2,#0
+	mov r3,#2
+	bl AttackStatUp
+	b AttackStatMinMaxEnd
+DefiantDefenseMinMaxHook:
+	cmp r8,r9
+	beq DefenseStatMinMaxEnd
+	mov r0,r9
+	mov r1,r8
+	mov r2,#0x75
+	mov r3,#1
+	bl DefenderAbilityIsActive
+	cmp r0,#0
+	beq DefenseStatMinMaxEnd
+	mov r0,r9
+	mov r1,r8
+	mov r2,#0
+	mov r3,#2
+	bl AttackStatUp
+	b DefenseStatMinMaxEnd
+
+
+
+; Magician
+DamageHook:
+	cmp r7,r8
+	beq damage_ret ; The user can't steal their own item!
+	ldr r0,[r6]
+	cmp r0,#0
+	ble damage_ret ; If no damage done, return!
+	ldr r0,[r6,#+0x4]
+	cmp r0,#0
+	cmpne r0,#16
+	bne damage_ret ; If not taking damage from a move, exit!
+	ldrb r0,[r6,#+0xD]
+	cmp r0,#0x2
+	beq damage_ret ; If the move being used is a status move, continue with the function!
+	ldr r0,[r8,#+0xb4]
+	ldrb r0,[r0,#+0x4A]
+	cmp r0,#0x14
+	cmpne r0,#0x15
+	cmpne r0,#0x17
+	cmpne r0,#0x32
+	bne damage_ret ; If the attacker isn't using a move or orb, continue with the function!
+	; Alright, we're done with the move checks. Time for the ability check!
+	mov r0,r8
+	mov r1,#0x38 ; Plus, which is replaced by Magician!
+	bl AbilityIsActive
+	cmp r0,#0
+	beq damage_ret ; No Magician!
+	mov r0,r8
+	mov r1,r7
+	bl Magician
+damage_ret:
+    	mov r0,#0x0 ; Vanilla instruction!
+	b EndDamageHook
+Magician:
+	; r0 = User Entity Pointer
+	; r1 = Target Entity Pointer
+	push {r3, r4, r5, r6, r7, r8, lr}
+	sub sp, sp, #4
+	mov r8, r0
+	mov r7, r1
+	mov r4, #0
+	mov r2, r4
+	; mov r0, r8
+	; mov r1, r7
+	mov r4, #1
+	bl #0x2324934
+	cmp r0, #0
+	beq some_branch1
+	mov r0, #0
+	mov r1, r8
+	mov r2, r0
+	ldr r5, [r8, #0xb4]
+	ldr r6, [r7, #0xb4]
+	bl #0x22e2ad8
+	mov r1, r7
+	mov r0, r4
+	mov r2, #0
+	bl #0x22e2ad8
+	mov r0, r8
+	mov r1, r7
+	mov r2, #0x2c
+	mov r3, r4
+	bl #0x232bdd0
+	cmp r0, #0
+	beq check_r5
+	ldr r2,=#0x0EFE
+	mov r0, r8
+	mov r1, r7
+	bl #0x234b350
+	mov r0, r4
+	b ret2
+	check_r5:
+	ldrb r0, [r5, #0x62]
+	tst r0, #1
+	movne r0, r4
+	moveq r0, #0
+	tst r0, #0xff
+	beq check_r6
+	ldr r2,=#0x0EFA
+	mov r0, r8
+	mov r1, r7
+	bl #0x234b350
+	mov r0, #1
+	b ret2
+	check_r6:
+	ldrb r0, [r6, #0x62]
+	tst r0, #1
+	movne r0, #1
+	moveq r0, #0
+	tst r0, #0xff
+	bne check_r5_again
+	;ldr r2,=#0x0EFB
+	;mov r0, r8
+	;mov r1, r7
+	;bl #0x234b350
+	mov r0, #1
+	b ret2
+	check_r5_again:
+	ldrb r0, [r5, #6]
+	cmp r0, #0
+	bne fun_memory
+	bl #0x200edc0
+	cmp r0, #0
+	beq fun_memory
+	ldr r2,=#0x0EFC
+	mov r0, r8
+	mov r1, r7
+	bl #0x234b350
+	mov r0, #1
+	b ret2
+	fun_memory:
+	ldrh r0, [r6, #0x62]
+	strh r0, [r5, #0x62]
+	ldrh r0, [r6, #0x64]
+	strh r0, [r5, #0x64]
+	ldrh r0, [r6, #0x66]
+	strh r0, [r5, #0x66]
+	ldrb r0, [r5, #6]
+	cmp r0, #0
+	bne idk_why
+	mov r0, r5
+	bl #0x2346f14
+	idk_why:
+	ldrb r0, [r6, #6]
+	cmp r0, #0
+	bne idk_why_again
+	add r0, r6, #0x62
+	bl #0x200f558
+	idk_why_again:
+	add r0, r6, #0x62
+	bl #0x200d81c
+	mov r0, r8
+	bl #0x22f9ea0
+	mov r0, r7
+	bl #0x22f9ea0
+	ldrb r0, [r5, #0x108]
+	ldr r2,=#297 ; #0x0EF9
+	mov r1, r7
+	cmp r0, #1
+	movlo r0, #1
+	strlob r0, [r5, #0x108]
+	mov r0, r8
+	bl #0x234b350
+	b ret1
+	some_branch1:
+	mov r0, r7
+	bl #0x232c500
+	cmp r0, #0
+	beq ret1
+	ldr r2,=#0x0EFD
+	mov r0, r8
+	mov r1, r7
+	bl #0x234b350
+	ret1:
+	mov r0, r4
+	ret2:
+	add sp, sp, #4
+	pop {r3, r4, r5, r6, r7, r8, pc}
+.pool
+	; Replace with appropriate Text Strings later
+	;.word 0x0EFE ; But the target's item couldn't be taken!
+	;.word 0x0EFA ; [string:0] has an item already. It couldn't steal another item.
+	;.word 0x0EFB ; [string:1] doesn't have anything!
+	;.word 0x0EFC ; The [gadget_bag] is full. [string:0] couldn't get the item!
+	;.word 0x0EF9 ; Got [string:1]'s item!
+	;.word 0x0EFD ; But the target's item couldn't be taken!
+contrary_flag:
+	.byte 0x0
+.endarea

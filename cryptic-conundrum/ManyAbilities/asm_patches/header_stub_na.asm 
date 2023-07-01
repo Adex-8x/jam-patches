@@ -1,0 +1,53 @@
+.relativeinclude on
+.nds
+.arm
+
+.definelabel ExecuteMoveBeforeLoop, 0x0232e928 ; Was originally b 0x02332824, or bd 0f 00 ea
+.definelabel StartExecuteMoveLoop, 0x02332824 
+.definelabel IsAbilityActive, 0x2301D10
+.definelabel GetMoveType, 0x0230227C
+.definelabel LogMessageByIdWithPopupCheckUserTarget, 0x0234B350
+.definelabel SubstitutePlaceholderStringTags, 0x022E2AD8
+.definelabel UNK_NA_234B084, 0x0234B084
+.definelabel UNK_NA_22E647C, 0x022E647C
+; Magician
+.definelabel MagicianDamageCheck, 0x02309B18 ; was mov r0,#0
+.definelabel AbilityIsActive, 0x02301D10
+; Contrary
+.definelabel AttackStatDownStart, 0x02313604 ; was mov r7, r1
+.definelabel DefenseStatDownStart, 0x0231381C ; was mov r7, r1
+.definelabel AttackStatUpStart, 0x023139a4 ; was mov r8, r1
+.definelabel DefenseStatUpStart, 0x02313b10 ; was mov r8, r1
+.definelabel FocusStatUpStart, 0x023140ec ; was mov r6, r1
+.definelabel FocusStatDownStart, 0x02314234 ; was mov r6, r1
+.definelabel SpeedStatUpStart, 0x02314814 ; was mov r8, r1
+.definelabel SpeedStatDownStart, 0x02314958 ; was mov r9, r1
+.definelabel DefenderAbilityIsActive, 0x22F96CC
+.definelabel AttackStatMinMaxStart, 0x02313d50 ; was mov r7,r3
+.definelabel DefenseStatMinMaxStart, 0x02313f74 ; was mov r7,r3
+
+.definelabel AttackStatDown, 0x023135FC
+.definelabel DefenseStatDown, 0x02313814
+.definelabel AttackStatUp, 0x0231399c
+.definelabel DefenseStatUp, 0x02313b08
+.definelabel FocusStatUp, 0x023140e4
+.definelabel FocusStatDown, 0x0231422c
+.definelabel SpeedStatUp, 0x02314810
+.definelabel SpeedStatDown, 0x02314954
+.definelabel AttackStatMinMax, 0x02313d40
+.definelabel DefenseStatMinMax, 0x02313f64
+
+.definelabel AttackStatDownSuccess, 0x023137CC
+.definelabel DefenseStatDownSuccess, 0x02313960
+.definelabel FocusStatDownSuccess1, 0x023143A8
+.definelabel FocusStatDownSuccess2, 0x02314394
+.definelabel SpeedStatDownSuccess, 0x02314a9c ; was originally bl 02314e1c
+.definelabel AttackStatMinMaxSuccess, 0x02313f08
+.definelabel DefenseStatMinMaxSuccess, 0x0231408C
+
+.definelabel AttackStatDownEnd, 0x023137e0
+.definelabel DefenseStatDownEnd, 0x02313974
+.definelabel FocusStatDownEnd, 0x023143bc
+; No SpeedStatDownEnd needed, after it finishes it leads right into the return
+.definelabel AttackStatMinMaxEnd, 0x02313f34
+.definelabel DefenseStatMinMaxEnd, 0x23140b8
