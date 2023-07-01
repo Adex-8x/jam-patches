@@ -35,7 +35,7 @@
 		cmp r1,#2
 		cmpne r1,#3
 		moveq r3,#0x180
-		movne r3,#0x180
+		movne r3,#0x100
 @@damage:
 		mov r0,r9
 		mov r1,r4
