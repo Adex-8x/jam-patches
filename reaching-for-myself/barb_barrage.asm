@@ -31,7 +31,6 @@
 		sub r13,r13,#0x4
 		ldr r0,[r4,#+0xb4]
 		ldrb r1,[r0,#+0xbd]
-		ldrb r2,[r0,#+0xbf]
 		cmp r1,#2
 		cmpne r1,#3
 		moveq r3,#0x180
@@ -43,6 +42,18 @@
 		str r7,[r13]
 		bl DealDamage
 		mov r10,r0
+		mov r0,r9
+		mov r1,r4
+		mov r2,#30
+		bl RandomChanceUT
+		cmp r0,#0
+		beq ret
+		mov r0,r9
+		mov r1,r4
+		mov r2,#1
+		mov r3,#0
+		bl Poison
+ret:
 		add r13,r13,#0x4
 		b MoveJumpAddress
 		.pool
